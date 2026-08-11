@@ -4,26 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HNB Finance - PDF Editor Pro</title>
-    <!-- Tailwind CSS for UI -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- PDF.js Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf_viewer.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-    <!-- jsPDF Library for Direct PDF Download -->
+    <!-- jsPDF Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         :root { --hnb: #004a99; --accent: #00f2ff; }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* NEON BORDER HEADER STYLES */
         .neon-header {
             background: #050508;
             position: relative;
@@ -66,7 +64,6 @@
             text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
         }
 
-        /* GLOW BUTTON STYLES */
         .btn-home-glow {
             background: linear-gradient(135deg, #004a99, #00f2ff);
             box-shadow: 0 0 10px rgba(0, 242, 255, 0.4);
@@ -78,45 +75,49 @@
             background: linear-gradient(135deg, #00f2ff, #004a99);
         }
 
-        /* Canvas & Text Layer Container */
         #pdf-wrapper {
             position: relative;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
             background: white;
             display: inline-block;
+            overflow: hidden;
         }
 
+        #pdf-canvas {
+            display: block;
+        }
+
+        /* Transparent Interactive Layer */
         .textLayer {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
             opacity: 1 !important;
+            line-height: 1.0 !important;
+            pointer-events: auto !important;
         }
 
         .textLayer span {
-            cursor: pointer;
-            color: transparent;
-            transition: all 0.15s ease;
+            position: absolute !important;
+            cursor: pointer !important;
+            color: transparent !important;
+            white-space: pre !important;
+            transform-origin: 0% 0% !important;
+            pointer-events: auto !important;
             border-radius: 2px;
         }
 
         .textLayer span:hover {
-            background-color: rgba(59, 130, 246, 0.25) !important;
-            outline: 1px dashed #3b82f6;
-        }
-
-        /* Edited Text Styles */
-        .edited-span {
-            color: #000000 !important;
-            background-color: #ffffff !important;
-            opacity: 1 !important;
-            display: flex !important;
-            align-items: center !important;
-            white-space: nowrap !important;
-            overflow: hidden !important;
+            background-color: rgba(59, 130, 246, 0.35) !important;
+            outline: 1px dashed #2563eb;
         }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans h-screen flex flex-col overflow-hidden">
 
-    <!-- Top Navigation Bar with HNB FINANCE Branding -->
+    <!-- Top Navigation Bar -->
     <header class="neon-header text-white h-20 flex items-center justify-between px-6 shadow-lg z-20">
         <div class="header-content flex items-center gap-3">
             <div class="bg-blue-600 p-2.5 rounded-xl shadow-md border border-cyan-400">
@@ -130,13 +131,16 @@
             </div>
         </div>
 
-        <div class="header-content flex items-center gap-4">
-            <!-- HOME BUTTON -->
+        <div class="header-content flex items-center gap-3">
             <a href="https://gmaphnbf.github.io/HNBFGMAP/" class="btn-home-glow text-white px-4 py-2 rounded-xl font-bold text-xs tracking-wider flex items-center gap-2 border border-white/20">
                 <i class="fa-solid fa-house text-white text-sm"></i> HOME
             </a>
 
-            <!-- Paper Size Selection Dropdown -->
+            <!-- Undo Button -->
+            <button onclick="undoLastAction()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-2 rounded-xl font-bold text-xs tracking-wider transition-all flex items-center gap-1.5 shadow-md border border-amber-400/30">
+                <i class="fa-solid fa-rotate-left text-sm"></i> UNDO
+            </button>
+
             <div class="flex items-center gap-2 bg-slate-900/90 px-3 py-2 rounded-xl border border-slate-700">
                 <i class="fa-solid fa-print text-cyan-400 text-xs"></i>
                 <label for="paper-size" class="text-xs font-bold text-slate-300">Paper Size:</label>
@@ -148,13 +152,11 @@
                 </select>
             </div>
 
-            <!-- Select PDF Button -->
             <label class="cursor-pointer bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl font-bold text-xs tracking-wider transition-all flex items-center gap-2 shadow-md border border-indigo-400/30">
                 <i class="fa-solid fa-file-arrow-up text-sm"></i> SELECT PDF
                 <input type="file" id="pdf-file" accept="application/pdf" class="hidden">
             </label>
 
-            <!-- Save PDF Button -->
             <button onclick="downloadPDF()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-bold text-xs tracking-wider transition-all flex items-center gap-2 shadow-md border border-emerald-400/30">
                 <i class="fa-solid fa-file-pdf text-sm"></i> SAVE PDF
             </button>
@@ -163,8 +165,6 @@
 
     <!-- Main Workspace -->
     <div class="flex flex-1 overflow-hidden">
-        
-        <!-- Sidebar - History & Credit -->
         <aside class="w-80 bg-white border-r border-slate-200 flex flex-col shadow-sm z-10">
             <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
                 <h2 class="font-bold text-slate-700 flex items-center gap-2 text-sm">
@@ -180,7 +180,6 @@
                 </div>
             </div>
 
-            <!-- Developer Credit -->
             <div class="p-4 border-t border-slate-200 bg-slate-950 text-center">
                 <p class="text-xs font-bold text-slate-400 tracking-wider">
                     DEVELOPED BY <span class="text-cyan-400 font-extrabold">UMESH</span>
@@ -188,7 +187,6 @@
             </div>
         </aside>
 
-        <!-- Main PDF Canvas Container -->
         <main id="editor-container" class="flex-1 overflow-auto p-8 flex justify-center items-start bg-slate-200">
             <div id="pdf-wrapper">
                 <canvas id="pdf-canvas"></canvas>
@@ -197,7 +195,7 @@
         </main>
     </div>
 
-    <!-- Edit Modal Overlay -->
+    <!-- Edit Modal -->
     <div id="edit-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-slate-100">
             <div class="bg-slate-900 text-white p-4 flex justify-between items-center border-b border-slate-800">
@@ -229,6 +227,7 @@
         const fileInput = document.getElementById('pdf-file');
         const canvas = document.getElementById('pdf-canvas');
         const textLayerDiv = document.getElementById('text-layer');
+        const pdfWrapper = document.getElementById('pdf-wrapper');
         const ctx = canvas.getContext('2d');
         const modal = document.getElementById('edit-modal');
         const modalInput = document.getElementById('modal-input');
@@ -236,6 +235,8 @@
         
         let currentTargetSpan = null;
         let historyCounter = 0;
+        let historyStack = [];
+        let baseCanvasSnapshot = null;
 
         fileInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
@@ -245,16 +246,23 @@
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
             const page = await pdf.getPage(1);
 
-            const viewport = page.getViewport({ scale: 2.0 }); // High-Res Scale for sharp output
+            const scale = 2.0; 
+            const viewport = page.getViewport({ scale: scale });
 
             canvas.height = viewport.height;
             canvas.width = viewport.width;
 
-            textLayerDiv.style.height = viewport.height + 'px';
+            pdfWrapper.style.width = viewport.width + 'px';
+            pdfWrapper.style.height = viewport.height + 'px';
+
             textLayerDiv.style.width = viewport.width + 'px';
+            textLayerDiv.style.height = viewport.height + 'px';
             textLayerDiv.innerHTML = '';
 
             await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+            
+            baseCanvasSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
             const textContent = await page.getTextContent();
             
             await pdfjsLib.renderTextLayer({
@@ -264,21 +272,25 @@
                 textDivs: []
             }).promise;
 
-            setupTextSpanEvents();
+            historyStack = [];
+            historyCounter = 0;
+            document.getElementById('history-count').innerText = "0";
+            document.getElementById('history-list').innerHTML = `
+                <div id="empty-state" class="text-center py-10 text-slate-400">
+                    <i class="fa-solid fa-i-cursor text-3xl mb-2 text-slate-300"></i>
+                    <p class="text-xs font-medium">Click on any text in the PDF to edit without changing font size.</p>
+                </div>`;
         });
 
-        function setupTextSpanEvents() {
-            const spans = textLayerDiv.querySelectorAll('span');
-            spans.forEach(span => {
-                span.addEventListener('click', function() {
-                    currentTargetSpan = this;
-                    modalOriginalText.innerText = this.innerText;
-                    modalInput.value = this.innerText;
-                    modal.classList.remove('hidden');
-                    modalInput.focus();
-                });
-            });
-        }
+        textLayerDiv.addEventListener('click', function(e) {
+            if (e.target && e.target.tagName === 'SPAN') {
+                currentTargetSpan = e.target;
+                modalOriginalText.innerText = currentTargetSpan.innerText;
+                modalInput.value = currentTargetSpan.innerText;
+                modal.classList.remove('hidden');
+                modalInput.focus();
+            }
+        });
 
         document.getElementById('modal-save-btn').addEventListener('click', function() {
             if (!currentTargetSpan) return;
@@ -287,42 +299,54 @@
             const newText = modalInput.value;
 
             if (newText.trim() !== "") {
-                const rect = currentTargetSpan.getBoundingClientRect();
-                const containerRect = textLayerDiv.getBoundingClientRect();
-                
-                const x = (rect.left - containerRect.left);
-                const y = (rect.top - containerRect.top);
-                const width = rect.width;
-                const height = rect.height;
-
-                // 1. Original Text එක තිබූ තැන සුදු පැහැයෙන් Erase කිරීම
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(x - 2, y - 2, width + 4, height + 4);
-
-                // 2. Original Font Size එක ඒ අයුරින්ම ලබා ගැනීම
-                const computedStyle = window.getComputedStyle(currentTargetSpan);
-                const originalFontSize = computedStyle.fontSize;
-
-                // 3. New Text එක Spans එකට එකතු කිරීම
-                currentTargetSpan.innerText = newText;
-                currentTargetSpan.classList.add('edited-span');
-                
-                currentTargetSpan.style.fontSize = originalFontSize;
-                currentTargetSpan.style.lineHeight = computedStyle.lineHeight;
-                currentTargetSpan.style.fontFamily = computedStyle.fontFamily;
-
-                addToHistory(oldText, newText);
+                applyTextChange(currentTargetSpan, oldText, newText);
             }
 
             closeModal();
         });
+
+        function applyTextChange(span, oldText, newText) {
+            // Span Exact Position
+            const spanLeft = span.offsetLeft;
+            const spanTop = span.offsetTop;
+            const spanWidth = span.offsetWidth || (span.innerText.length * 8);
+            const spanHeight = span.offsetHeight || 16;
+
+            // Original Style Capture
+            const computedStyle = window.getComputedStyle(span);
+            const fontSize = computedStyle.fontSize;
+            const fontFamily = computedStyle.fontFamily;
+            const color = computedStyle.color && computedStyle.color !== 'rgba(0, 0, 0, 0)' && computedStyle.color !== 'transparent' ? computedStyle.color : '#000000';
+
+            // HTML Element InnerText Update
+            span.innerText = newText;
+
+            const editRecord = {
+                span: span,
+                oldText: oldText,
+                newText: newText,
+                x: spanLeft,
+                y: spanTop,
+                width: spanWidth,
+                height: spanHeight,
+                fontSize: fontSize,
+                fontFamily: fontFamily,
+                color: color
+            };
+
+            historyStack.push(editRecord);
+
+            // Directly redraw text on Canvas
+            redrawCanvasWithEdits();
+            addToHistory(editRecord);
+        }
 
         function closeModal() {
             modal.classList.add('hidden');
             currentTargetSpan = null;
         }
 
-        function addToHistory(oldText, newText) {
+        function addToHistory(record) {
             const historyList = document.getElementById('history-list');
             const emptyState = document.getElementById('empty-state');
             
@@ -334,56 +358,91 @@
             const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             const historyItem = document.createElement('div');
-            historyItem.className = 'bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs space-y-1 shadow-xs';
+            historyItem.className = 'bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs space-y-1 shadow-xs flex justify-between items-center';
             historyItem.innerHTML = `
-                <div class="flex justify-between items-center text-slate-400 font-bold">
-                    <span>#${historyCounter} Text Edit</span>
-                    <span>${timeString}</span>
+                <div class="space-y-0.5 max-w-[170px]">
+                    <div class="flex justify-between items-center text-slate-400 font-bold">
+                        <span>#${historyCounter} Text Edit</span>
+                        <span>${timeString}</span>
+                    </div>
+                    <div class="line-through text-rose-500 truncate font-medium">${record.oldText}</div>
+                    <div class="text-emerald-600 font-bold truncate">${record.newText}</div>
                 </div>
-                <div class="line-through text-rose-500 truncate font-medium">${oldText}</div>
-                <div class="text-emerald-600 font-bold truncate">${newText}</div>
+                <button onclick="undoSpecificAction(${historyStack.length - 1})" class="text-amber-600 hover:bg-amber-100 p-1.5 rounded-lg font-bold transition-all" title="Undo this edit">
+                    <i class="fa-solid fa-rotate-left text-sm"></i>
+                </button>
             `;
 
             historyList.prepend(historyItem);
         }
 
-        // Direct Render and Export to PDF (No cutting or alignment issues)
+        function undoLastAction() {
+            if (historyStack.length === 0) return;
+            undoSpecificAction(historyStack.length - 1);
+        }
+
+        function undoSpecificAction(index) {
+            if (index < 0 || index >= historyStack.length) return;
+
+            const record = historyStack[index];
+            record.span.innerText = record.oldText;
+
+            historyStack.splice(index, 1);
+
+            redrawCanvasWithEdits();
+            refreshHistoryUI();
+        }
+
+        function redrawCanvasWithEdits() {
+            if (!baseCanvasSnapshot) return;
+
+            // 1. Original PDF Canvas එක Restore කිරීම
+            ctx.putImageData(baseCanvasSnapshot, 0, 0);
+
+            // 2. වෙනස් කළ සියලුම Text Canvas එක මත Direct Render කිරීම
+            historyStack.forEach(rec => {
+                // Erase old text on Canvas
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(rec.x - 2, rec.y - 2, rec.width + 12, rec.height + 6);
+
+                // Draw new text with exact Font, Size & Color directly on Canvas
+                ctx.font = `${rec.fontSize} ${rec.fontFamily}`;
+                ctx.fillStyle = rec.color;
+                ctx.textBaseline = 'top';
+                ctx.fillText(rec.newText, rec.x, rec.y);
+            });
+        }
+
+        function refreshHistoryUI() {
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            historyCounter = 0;
+
+            if (historyStack.length === 0) {
+                document.getElementById('history-count').innerText = "0";
+                historyList.innerHTML = `
+                    <div id="empty-state" class="text-center py-10 text-slate-400">
+                        <i class="fa-solid fa-i-cursor text-3xl mb-2 text-slate-300"></i>
+                        <p class="text-xs font-medium">Click on any text in the PDF to edit without changing font size.</p>
+                    </div>`;
+                return;
+            }
+
+            const currentStack = [...historyStack];
+            historyStack = [];
+
+            currentStack.forEach(rec => {
+                historyStack.push(rec);
+                addToHistory(rec);
+            });
+        }
+
         async function downloadPDF() {
             if (!canvas.width) {
                 alert("කරුණාකර පළමුව PDF එකක් Upload කරන්න!");
                 return;
             }
 
-            // Create Off-screen Working Canvas
-            const exportCanvas = document.createElement('canvas');
-            exportCanvas.width = canvas.width;
-            exportCanvas.height = canvas.height;
-            const exportCtx = exportCanvas.getContext('2d');
-
-            // 1. Draw Base PDF Canvas
-            exportCtx.drawImage(canvas, 0, 0);
-
-            // 2. Draw Edited Text Layers directly onto the Canvas Context
-            const spans = textLayerDiv.querySelectorAll('.edited-span');
-            spans.forEach(span => {
-                const rect = span.getBoundingClientRect();
-                const containerRect = textLayerDiv.getBoundingClientRect();
-                
-                const x = rect.left - containerRect.left;
-                const y = rect.top - containerRect.top;
-
-                const computedStyle = window.getComputedStyle(span);
-                const fontSize = computedStyle.fontSize;
-                const fontFamily = computedStyle.fontFamily;
-
-                // Draw Text
-                exportCtx.font = `${fontSize} ${fontFamily}`;
-                exportCtx.fillStyle = '#000000';
-                exportCtx.textBaseline = 'top';
-                exportCtx.fillText(span.innerText, x, y);
-            });
-
-            // 3. Export to jsPDF with selected paper size
             const { jsPDF } = window.jspdf;
             const selectedPaperSize = document.getElementById('paper-size').value;
             
@@ -396,9 +455,9 @@
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
 
-            const imgData = exportCanvas.toDataURL('image/jpeg', 1.0);
+            // Canvas Image එක direct ලෙස PDF එකට Save වීම සිදු වේ
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
             
-            // Auto Scale & Fit to PDF Page
             pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
             pdf.save('edited_document.pdf');
         }
