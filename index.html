@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HNB Finance - PDF Editor Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HNB Finance - PDF Editor Mobile</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -17,69 +17,44 @@
     <style>
         :root { --hnb: #004a99; --accent: #00f2ff; }
 
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        body {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
 
         .neon-header {
-            background: #050508;
-            position: relative;
-            overflow: hidden;
+            background: #0b0c10;
             border-bottom: 2px solid var(--hnb);
         }
 
-        .neon-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(transparent, transparent, var(--accent), #ff007f, var(--accent));
-            animation: rotateLight 4s linear infinite;
-            z-index: 1;
-        }
-
-        .neon-header::after {
-            content: '';
-            position: absolute;
-            inset: 2px;
-            background: #0b0c10;
-            z-index: 2;
-        }
-
-        @keyframes rotateLight {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 3;
-        }
-
         .brand-title {
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px var(--accent);
         }
 
-        .btn-home-glow {
-            background: linear-gradient(135deg, #004a99, #00f2ff);
-            box-shadow: 0 0 10px rgba(0, 242, 255, 0.4);
-            transition: all 0.3s ease;
+        /* Responsive PDF Canvas Wrapper */
+        #viewport-container {
+            width: 100%;
+            height: calc(100vh - 130px);
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            background-color: #cbd5e1;
+            padding: 10px;
         }
 
         #pdf-wrapper {
             position: relative;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
             background: white;
-            display: inline-block;
-            overflow: hidden;
+            margin: auto;
         }
 
         #pdf-canvas {
             display: block;
+            width: 100% !important;
+            height: auto !important;
         }
 
         /* Transparent Interactive Layer */
@@ -104,125 +79,115 @@
             border-radius: 2px;
         }
 
-        .textLayer span:hover {
-            background-color: rgba(59, 130, 246, 0.35) !important;
-            outline: 1px dashed #2563eb;
+        .textLayer span:active, .textLayer span:hover {
+            background-color: rgba(59, 130, 246, 0.4) !important;
+            outline: 1.5px solid #00f2ff;
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans h-screen flex flex-col overflow-hidden">
+<body class="bg-slate-900 text-slate-800 font-sans h-screen flex flex-col justify-between overflow-hidden">
 
-    <!-- Top Navigation Bar -->
-    <header class="neon-header text-white min-h-[5rem] flex flex-col md:flex-row items-center justify-between p-3 md:px-6 shadow-lg z-20 gap-3">
-        <div class="header-content flex items-center justify-between w-full md:w-auto">
-            <div class="flex items-center gap-2">
-                <div class="bg-blue-600 p-2 rounded-xl shadow-md border border-cyan-400">
-                    <i class="fa-solid fa-file-pen text-xl text-white"></i>
-                </div>
-                <div>
-                    <h1 class="brand-title font-black text-sm md:text-lg text-white uppercase">
-                        HNB FINANCE <span class="text-cyan-400">PDF EDITOR</span>
-                    </h1>
-                    <p class="text-[10px] md:text-xs text-slate-300 font-medium">Exact Font Preserved</p>
-                </div>
+    <!-- Mobile Top Bar -->
+    <header class="neon-header text-white h-14 flex items-center justify-between px-4 shadow-md z-20 shrink-0">
+        <div class="flex items-center gap-2">
+            <div class="bg-blue-600 p-1.5 rounded-lg border border-cyan-400">
+                <i class="fa-solid fa-file-pen text-sm text-white"></i>
             </div>
-
-            <!-- Mobile History Toggle Button -->
-            <button onclick="toggleSidebar()" class="md:hidden bg-slate-800 text-cyan-400 p-2 rounded-lg border border-slate-700">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-            </button>
+            <div>
+                <h1 class="brand-title font-black text-xs text-white uppercase">
+                    HNB FINANCE <span class="text-cyan-400">EDITOR</span>
+                </h1>
+                <p class="text-[9px] text-slate-400 font-medium">Mobile Pro Version</p>
+            </div>
         </div>
 
-        <div class="header-content flex flex-wrap items-center justify-center md:justify-end gap-2 w-full md:w-auto">
-            <a href="https://gmaphnbf.github.io/HNBFGMAP/" class="btn-home-glow text-white px-3 py-1.5 rounded-lg font-bold text-[11px] flex items-center gap-1">
-                <i class="fa-solid fa-house text-xs"></i> HOME
+        <div class="flex items-center gap-2">
+            <a href="https://gmaphnbf.github.io/HNBFGMAP/" class="bg-blue-600/30 border border-cyan-400/50 text-cyan-300 p-2 rounded-lg text-xs font-bold flex items-center justify-center">
+                <i class="fa-solid fa-house"></i>
             </a>
-
-            <button onclick="undoLastAction()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg font-bold text-[11px] flex items-center gap-1 shadow-md">
-                <i class="fa-solid fa-rotate-left text-xs"></i> UNDO
-            </button>
-
-            <div class="flex items-center gap-1 bg-slate-900/90 px-2 py-1 rounded-lg border border-slate-700">
-                <select id="paper-size" class="bg-slate-800 text-white text-[11px] border border-slate-600 rounded px-1 py-0.5 outline-none font-semibold">
-                    <option value="a4">A4</option>
-                    <option value="letter">Letter</option>
-                    <option value="legal">Legal</option>
-                    <option value="a3">A3</option>
-                </select>
-            </div>
-
-            <label class="cursor-pointer bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg font-bold text-[11px] flex items-center gap-1 shadow-md">
-                <i class="fa-solid fa-file-arrow-up text-xs"></i> SELECT
-                <input type="file" id="pdf-file" accept="application/pdf" class="hidden">
-            </label>
-
-            <button onclick="downloadPDF()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-bold text-[11px] flex items-center gap-1 shadow-md">
-                <i class="fa-solid fa-file-pdf text-xs"></i> SAVE
-            </button>
+            <select id="paper-size" class="bg-slate-800 text-cyan-300 text-[11px] border border-slate-700 rounded-lg px-1.5 py-1 outline-none font-bold">
+                <option value="a4">A4</option>
+                <option value="letter">Letter</option>
+                <option value="legal">Legal</option>
+            </select>
         </div>
     </header>
 
-    <!-- Main Workspace -->
-    <div class="flex flex-1 overflow-hidden relative">
-        <!-- Sidebar (Drawer for Mobile) -->
-        <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 z-30 w-72 md:w-80 bg-white border-r border-slate-200 flex flex-col shadow-xl md:shadow-sm transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
-            <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-                <h2 class="font-bold text-slate-700 flex items-center gap-2 text-xs md:text-sm">
-                    <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Edit History
-                </h2>
-                <div class="flex items-center gap-2">
-                    <span id="history-count" class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-extrabold">0</span>
-                    <button onclick="toggleSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 p-1">
-                        <i class="fa-solid fa-xmark text-lg"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div id="history-list" class="flex-1 overflow-y-auto p-3 space-y-2">
-                <div id="empty-state" class="text-center py-10 text-slate-400">
-                    <i class="fa-solid fa-i-cursor text-2xl mb-2 text-slate-300"></i>
-                    <p class="text-xs font-medium">Click on any text in the PDF to edit.</p>
-                </div>
-            </div>
+    <!-- Main Mobile Workspace -->
+    <main id="viewport-container">
+        <div id="pdf-wrapper">
+            <canvas id="pdf-canvas"></canvas>
+            <div id="text-layer" class="textLayer"></div>
+        </div>
+    </main>
 
-            <div class="p-3 border-t border-slate-200 bg-slate-950 text-center">
-                <p class="text-[10px] md:text-xs font-bold text-slate-400 tracking-wider">
-                    DEVELOPED BY <span class="text-cyan-400 font-extrabold">9299</span>
-                </p>
-            </div>
-        </aside>
+    <!-- Mobile Bottom Navigation Bar / Controls -->
+    <nav class="bg-slate-950 border-t border-slate-800 h-16 flex items-center justify-around px-2 z-20 shrink-0">
+        <!-- Open File -->
+        <label class="flex flex-col items-center justify-center text-slate-400 active:text-cyan-400 cursor-pointer">
+            <i class="fa-solid fa-folder-open text-base mb-0.5"></i>
+            <span class="text-[10px] font-bold">Open</span>
+            <input type="file" id="pdf-file" accept="application/pdf" class="hidden">
+        </label>
 
-        <!-- Main Editor Area -->
-        <main id="editor-container" class="flex-1 overflow-auto p-4 md:p-8 flex justify-start md:justify-center items-start bg-slate-200">
-            <div id="pdf-wrapper">
-                <canvas id="pdf-canvas"></canvas>
-                <div id="text-layer" class="textLayer"></div>
-            </div>
-        </main>
+        <!-- Undo -->
+        <button onclick="undoLastAction()" class="flex flex-col items-center justify-center text-slate-400 active:text-amber-400">
+            <i class="fa-solid fa-rotate-left text-base mb-0.5"></i>
+            <span class="text-[10px] font-bold">Undo</span>
+        </button>
+
+        <!-- Edit History Drawer Button -->
+        <button onclick="toggleHistoryDrawer()" class="flex flex-col items-center justify-center text-slate-400 active:text-blue-400 relative">
+            <i class="fa-solid fa-clock-rotate-left text-base mb-0.5"></i>
+            <span class="text-[10px] font-bold">History</span>
+            <span id="history-badge" class="absolute -top-1 -right-2 bg-blue-600 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+        </button>
+
+        <!-- Save PDF -->
+        <button onclick="downloadPDF()" class="flex flex-col items-center justify-center text-emerald-400 active:text-emerald-300">
+            <i class="fa-solid fa-file-arrow-down text-lg mb-0.5"></i>
+            <span class="text-[10px] font-extrabold">Save PDF</span>
+        </button>
+    </nav>
+
+    <!-- Mobile Bottom History Drawer -->
+    <div id="history-drawer" class="fixed inset-x-0 bottom-0 bg-slate-900 border-t border-slate-700 rounded-t-2xl shadow-2xl z-40 transform translate-y-full transition-transform duration-300 max-h-[60vh] flex flex-col">
+        <div class="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-950 rounded-t-2xl">
+            <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left text-cyan-400"></i> Edit History
+            </h3>
+            <button onclick="toggleHistoryDrawer()" class="text-slate-400 p-1"><i class="fa-solid fa-xmark text-base"></i></button>
+        </div>
+        <div id="history-list" class="p-3 overflow-y-auto space-y-2 flex-1">
+            <p id="empty-state" class="text-center text-xs text-slate-500 py-6">No edits made yet. Tap on any text to edit.</p>
+        </div>
+        <div class="p-2 bg-slate-950 text-center border-t border-slate-800">
+            <p class="text-[9px] font-bold text-slate-500">DEVELOPED BY <span class="text-cyan-400">9299</span></p>
+        </div>
     </div>
 
-    <!-- Edit Modal -->
-    <div id="edit-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-100">
-            <div class="bg-slate-900 text-white p-4 flex justify-between items-center border-b border-slate-800">
-                <h3 class="font-bold text-xs md:text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-font text-cyan-400"></i> Edit Text Content
+    <!-- Mobile Text Edit Modal -->
+    <div id="edit-modal" class="fixed inset-0 bg-black/70 backdrop-blur-xs hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-xs overflow-hidden shadow-2xl">
+            <div class="bg-slate-950 p-3 flex justify-between items-center border-b border-slate-800">
+                <h3 class="font-bold text-xs text-cyan-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit Text
                 </h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <button onclick="closeModal()" class="text-slate-400"><i class="fa-solid fa-xmark text-base"></i></button>
             </div>
             <div class="p-4 space-y-3">
                 <div>
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Original Text</label>
-                    <div id="modal-original-text" class="p-2.5 bg-slate-100 rounded-xl text-xs md:text-sm text-slate-600 italic break-words border border-slate-200 font-medium"></div>
+                    <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Original Text</label>
+                    <div id="modal-original-text" class="p-2 bg-slate-800 rounded-lg text-xs text-slate-300 italic break-words border border-slate-700 font-medium"></div>
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">New Text</label>
-                    <input type="text" id="modal-input" class="w-full border-2 border-slate-300 rounded-xl p-2.5 text-xs md:text-sm font-semibold focus:outline-none focus:border-blue-600 transition-all">
+                    <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">New Text</label>
+                    <input type="text" id="modal-input" class="w-full bg-slate-800 text-white border border-cyan-500/50 rounded-lg p-2.5 text-xs font-semibold focus:outline-none focus:border-cyan-400">
                 </div>
             </div>
-            <div class="bg-slate-50 p-3 border-t border-slate-100 flex justify-end gap-2">
-                <button onclick="closeModal()" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all">Cancel</button>
-                <button id="modal-save-btn" class="px-4 py-1.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md">Apply Change</button>
+            <div class="bg-slate-950 p-3 border-t border-slate-800 flex justify-end gap-2">
+                <button onclick="closeModal()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 bg-slate-800">Cancel</button>
+                <button id="modal-save-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-cyan-600 text-white shadow-md">Apply</button>
             </div>
         </div>
     </div>
@@ -244,9 +209,9 @@
         let historyStack = [];
         let baseCanvasSnapshot = null;
 
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('-translate-x-full');
+        function toggleHistoryDrawer() {
+            const drawer = document.getElementById('history-drawer');
+            drawer.classList.toggle('translate-y-full');
         }
 
         fileInput.addEventListener('change', async function(e) {
@@ -285,12 +250,8 @@
 
             historyStack = [];
             historyCounter = 0;
-            document.getElementById('history-count').innerText = "0";
-            document.getElementById('history-list').innerHTML = `
-                <div id="empty-state" class="text-center py-10 text-slate-400">
-                    <i class="fa-solid fa-i-cursor text-2xl mb-2 text-slate-300"></i>
-                    <p class="text-xs font-medium">Click on any text in the PDF to edit.</p>
-                </div>`;
+            document.getElementById('history-badge').innerText = "0";
+            document.getElementById('history-list').innerHTML = `<p id="empty-state" class="text-center text-xs text-slate-500 py-6">No edits made yet. Tap on any text to edit.</p>`;
         });
 
         textLayerDiv.addEventListener('click', function(e) {
@@ -360,22 +321,22 @@
             if (emptyState) emptyState.remove();
 
             historyCounter++;
-            document.getElementById('history-count').innerText = historyCounter;
+            document.getElementById('history-badge').innerText = historyCounter;
 
             const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             const historyItem = document.createElement('div');
-            historyItem.className = 'bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs space-y-1 shadow-xs flex justify-between items-center';
+            historyItem.className = 'bg-slate-800 border border-slate-700 p-2 rounded-xl text-xs flex justify-between items-center';
             historyItem.innerHTML = `
-                <div class="space-y-0.5 max-w-[140px]">
-                    <div class="flex justify-between items-center text-slate-400 font-bold text-[10px]">
-                        <span>#${historyCounter} Text Edit</span>
+                <div class="space-y-0.5 max-w-[200px]">
+                    <div class="flex items-center gap-2 text-slate-400 font-bold text-[9px]">
+                        <span>#${historyCounter}</span>
                         <span>${timeString}</span>
                     </div>
-                    <div class="line-through text-rose-500 truncate font-medium">${record.oldText}</div>
-                    <div class="text-emerald-600 font-bold truncate">${record.newText}</div>
+                    <div class="line-through text-rose-400 truncate text-[11px]">${record.oldText}</div>
+                    <div class="text-cyan-400 font-bold truncate text-[11px]">${record.newText}</div>
                 </div>
-                <button onclick="undoSpecificAction(${historyStack.length - 1})" class="text-amber-600 hover:bg-amber-100 p-1.5 rounded-lg font-bold transition-all" title="Undo this edit">
+                <button onclick="undoSpecificAction(${historyStack.length - 1})" class="text-amber-400 hover:bg-slate-700 p-1.5 rounded-lg" title="Undo">
                     <i class="fa-solid fa-rotate-left text-xs"></i>
                 </button>
             `;
@@ -422,12 +383,8 @@
             historyCounter = 0;
 
             if (historyStack.length === 0) {
-                document.getElementById('history-count').innerText = "0";
-                historyList.innerHTML = `
-                    <div id="empty-state" class="text-center py-10 text-slate-400">
-                        <i class="fa-solid fa-i-cursor text-2xl mb-2 text-slate-300"></i>
-                        <p class="text-xs font-medium">Click on any text in the PDF to edit.</p>
-                    </div>`;
+                document.getElementById('history-badge').innerText = "0";
+                historyList.innerHTML = `<p id="empty-state" class="text-center text-xs text-slate-500 py-6">No edits made yet. Tap on any text to edit.</p>`;
                 return;
             }
 
@@ -442,7 +399,7 @@
 
         async function downloadPDF() {
             if (!canvas.width) {
-                alert("කරුණාකර පළමුව PDF එකක් Upload කරන්න!");
+                alert("කරුණාකර පළමුව PDF එකක් Open කරගන්න!");
                 return;
             }
 
