@@ -4,90 +4,229 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HNB Finance - PDF Editor Pro</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- PDF.js Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf_viewer.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-    <!-- jsPDF Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
-        :root { --hnb: #004a99; --accent: #00f2ff; }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        .neon-header {
-            background: #050508;
-            position: relative;
-            overflow: hidden;
-            border-bottom: 2px solid var(--hnb);
+        :root{
+            --hnb-blue:#1676aa; --hnb-dark:#0a5480; --hnb-green:#6fa83a;
+            --hnb-tx:#14213d; --hnb-mu:#5d6b82; --hnb-bd:#dbe6ef; --hnb-bd2:#8fa3b8;
         }
 
-        .neon-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(transparent, transparent, var(--accent), #ff007f, var(--accent));
-            animation: rotateLight 4s linear infinite;
-            z-index: 1;
+        *{box-sizing:border-box}
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+            background-color: #ffffff !important;
+            background-image:
+                radial-gradient(560px 380px at 8% 6%, rgba(37,170,225,0.22), transparent 70%),
+                radial-gradient(600px 400px at 94% 12%, rgba(127,182,63,0.20), transparent 70%),
+                radial-gradient(700px 460px at 50% 100%, rgba(37,170,225,0.14), transparent 70%) !important;
+            background-attachment: fixed !important;
+            color: #14213d;
         }
 
-        .neon-header::after {
-            content: '';
-            position: absolute;
-            inset: 2px;
-            background: #0b0c10;
-            z-index: 2;
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(22,118,170,0.35); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(22,118,170,0.55); }
+
+        /* ============ HNB GLASS HEADER ============ */
+        header.hnb-glass-header {
+            background: linear-gradient(120deg, rgba(37,170,225,0.16), rgba(255,255,255,0.86) 50%, rgba(127,182,63,0.16));
+            -webkit-backdrop-filter: blur(16px) saturate(160%);
+            backdrop-filter: blur(16px) saturate(160%);
+            border-bottom: 1.5px solid rgba(255,255,255,0.95);
+            box-shadow: 0 8px 26px rgba(14,88,128,0.14), inset 0 1px 0 #fff;
         }
 
-        @keyframes rotateLight {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* ============ HNB FINANCE LOGO (with popup) ============ */
+        .hnb-logo-wrap{ position: relative; display: inline-block; }
+
+        .hnb-logo{
+            display: inline-flex; align-items: center; gap: 2px;
+            padding: 8px 18px 8px 16px;
+            border-radius: 14px;
+            background: linear-gradient(150deg, rgba(255,255,255,0.96), rgba(240,248,255,0.88));
+            border: 1.5px solid rgba(255,255,255,0.98);
+            box-shadow: 0 10px 24px rgba(14,88,128,0.18), 0 2px 5px rgba(15,23,42,0.06), inset 0 1px 0 #fff;
+            line-height: 1; position: relative; isolation: isolate; overflow: hidden;
+            cursor: pointer; user-select: none;
+            transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+        }
+        .hnb-logo:hover{
+            transform: translateY(-1px); filter: brightness(1.03);
+            box-shadow: 0 14px 30px rgba(14,88,128,0.24), 0 3px 8px rgba(15,23,42,0.10), inset 0 1px 0 #fff;
+        }
+        .hnb-logo::before{
+            content: ""; position: absolute; inset: 0 0 50% 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0));
+            pointer-events: none; z-index: -1;
+        }
+        .hnb-logo .hnb-part{
+            color: #1676aa; font-weight: 900; font-size: 1.45rem;
+            letter-spacing: -0.6px; text-shadow: 0 1px 0 rgba(255,255,255,0.9);
+        }
+        .hnb-logo .fin-part{
+            color: #6fa83a; font-weight: 800; font-size: 0.85rem;
+            letter-spacing: 2.4px; margin-left: 8px; padding-left: 9px;
+            border-left: 2px solid #dbe6ef; text-shadow: 0 1px 0 rgba(255,255,255,0.9);
         }
 
-        .header-content {
-            position: relative;
-            z-index: 3;
+        /* ============ LOGO POPUP ============ */
+        .logo-pop{
+            position: absolute; top: calc(100% + 12px); left: 50%;
+            z-index: 1000; width: 310px; max-width: calc(100vw - 24px);
+            padding: 14px 14px 12px; border-radius: 22px;
+            background: linear-gradient(150deg, rgba(255,255,255,0.94), rgba(232,243,252,0.85));
+            -webkit-backdrop-filter: blur(18px) saturate(170%);
+            backdrop-filter: blur(18px) saturate(170%);
+            border: 1.5px solid rgba(255,255,255,0.98);
+            box-shadow: 0 22px 54px rgba(14,88,128,0.28), 0 4px 12px rgba(15,23,42,0.10), inset 0 1px 0 #fff;
+            opacity: 0; visibility: hidden; pointer-events: none;
+            transform: translateX(-50%) translateY(-8px) scale(0.96);
+            transform-origin: top center;
+            transition: opacity .2s ease, transform .22s cubic-bezier(.2,.9,.3,1.2), visibility 0s linear .22s;
+        }
+        .logo-pop.show{
+            opacity: 1; visibility: visible; pointer-events: auto;
+            transform: translateX(-50%) translateY(0) scale(1);
+            transition: opacity .2s ease, transform .22s cubic-bezier(.2,.9,.3,1.2), visibility 0s;
+        }
+        .logo-pop::before{
+            content: ""; position: absolute; top: -7px; left: 50%;
+            width: 14px; height: 14px; margin-left: -7px;
+            background: rgba(255,255,255,0.96);
+            border-left: 1.5px solid rgba(255,255,255,0.98);
+            border-top: 1.5px solid rgba(255,255,255,0.98);
+            transform: rotate(45deg); border-radius: 3px 0 0 0;
+        }
+        .lp-head{
+            text-align: center; font-size: 11px; font-weight: 800; letter-spacing: 2px;
+            color: #1676aa; text-transform: uppercase; margin: 0 0 10px 0;
+        }
+        .lp-head span{ color: #6fa83a; }
+
+        .lp-opt{
+            position: relative; isolation: isolate; overflow: hidden;
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 14px; border-radius: 16px; text-decoration: none; color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+            border: 1.5px solid rgba(255,255,255,0.62);
+            box-shadow: 0 8px 20px rgba(14,88,128,0.28), inset 0 1.5px 0 rgba(255,255,255,0.75), inset 0 -10px 16px rgba(255,255,255,0.08);
+            transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+            cursor: pointer;
+        }
+        .lp-opt + .lp-opt{ margin-top: 10px; }
+        .lp-opt::before{
+            content: ""; position: absolute; left: 0; right: 0; top: 0; height: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.32), rgba(255,255,255,0.03));
+            border-radius: inherit; border-bottom-left-radius: 60% 28%; border-bottom-right-radius: 60% 28%;
+            pointer-events: none; z-index: -1;
+        }
+        .lp-web{
+            background:
+                linear-gradient(150deg,rgba(255,255,255,0.24),rgba(255,255,255,0) 60%),
+                linear-gradient(160deg,rgba(22,118,170,0.96),rgba(10,84,128,0.92));
+        }
+        .lp-call{
+            background:
+                linear-gradient(150deg,rgba(255,255,255,0.26),rgba(255,255,255,0) 60%),
+                linear-gradient(160deg,rgba(122,184,62,0.97),rgba(70,128,36,0.94));
+            box-shadow: 0 8px 20px rgba(70,128,36,0.32), inset 0 1.5px 0 rgba(255,255,255,0.75), inset 0 -10px 16px rgba(255,255,255,0.08);
+        }
+        .lp-opt:hover{ transform: translateY(-2px); filter: brightness(1.08) saturate(1.1); }
+        .lp-opt:active{ transform: translateY(0); filter: brightness(0.97); }
+
+        .lp-ico{
+            position: relative; flex: 0 0 42px; width: 42px; height: 42px;
+            display: flex; align-items: center; justify-content: center; font-size: 22px;
+            border-radius: 13px; background: rgba(255,255,255,0.24);
+            border: 1px solid rgba(255,255,255,0.55);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.65);
+        }
+        .lp-call .lp-ico::after{
+            content: ""; position: absolute; inset: -2px; border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.7);
+            animation: lpRing 1.6s ease-out infinite;
+        }
+        @keyframes lpRing{ 0%{transform:scale(1);opacity:.9} 100%{transform:scale(1.45);opacity:0} }
+        .lp-call .lp-ico span{
+            display: inline-block; animation: lpWiggle 2.2s ease-in-out infinite;
+            transform-origin: 50% 60%;
+        }
+        @keyframes lpWiggle{
+            0%,70%,100%{transform:rotate(0)} 75%{transform:rotate(-14deg)}
+            80%{transform:rotate(12deg)} 85%{transform:rotate(-10deg)} 90%{transform:rotate(8deg)}
+        }
+        .lp-txt{ display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+        .lp-lbl{ font-size: 10px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; opacity: .92; }
+        .lp-main{ font-size: 17px; font-weight: 800; letter-spacing: .3px; margin-top: 3px; white-space: nowrap; }
+        .lp-go{ margin-left: auto; font-size: 22px; font-weight: 800; opacity: .9; transition: transform .18s ease; }
+        .lp-opt:hover .lp-go{ transform: translateX(3px); }
+
+        /* ============ PRIMARY BLUE GLASS BUTTONS (Home style) ============ */
+        .btn-glass{
+            position: relative; isolation: isolate; overflow: hidden;
+            color: #fff !important; text-decoration: none;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+            background:
+                linear-gradient(150deg, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.05) 42%, rgba(255,255,255,0) 100%),
+                linear-gradient(160deg, rgba(22,118,170,0.95), rgba(10,84,128,0.90));
+            -webkit-backdrop-filter: blur(14px) saturate(170%);
+            backdrop-filter: blur(14px) saturate(170%);
+            border: 1.5px solid rgba(255,255,255,0.62) !important;
+            box-shadow:
+                0 8px 20px rgba(14,88,128,0.28),
+                0 2px 5px rgba(15,23,42,0.16),
+                inset 0 1.5px 0 rgba(255,255,255,0.75),
+                inset 0 -10px 16px rgba(255,255,255,0.08);
+            transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+        }
+        .btn-glass::before{
+            content: ""; position: absolute; left: 0; right: 0; top: 0; height: 52%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.32), rgba(255,255,255,0.03));
+            border-radius: inherit; border-bottom-left-radius: 60% 28%; border-bottom-right-radius: 60% 28%;
+            pointer-events: none; z-index: -1;
+        }
+        .btn-glass:hover{
+            filter: brightness(1.08) saturate(1.1);
+            transform: translateY(-2px);
+            box-shadow:
+                0 14px 30px rgba(14,88,128,0.36), 0 3px 8px rgba(15,23,42,0.18),
+                inset 0 1.5px 0 rgba(255,255,255,0.85), inset 0 -10px 16px rgba(255,255,255,0.10);
+        }
+        .btn-glass:active{ transform: translateY(0); }
+
+        /* ============ GLASS PANELS ============ */
+        aside.hnb-glass-aside {
+            background: linear-gradient(150deg, rgba(255,255,255,0.86), rgba(255,255,255,0.58));
+            -webkit-backdrop-filter: blur(16px) saturate(160%);
+            backdrop-filter: blur(16px) saturate(160%);
+            border-right: 1.5px solid rgba(255,255,255,0.95);
+            box-shadow: 0 12px 32px rgba(14,88,128,0.10);
         }
 
-        .brand-title {
-            letter-spacing: 3px;
-            text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
-        }
-
-        .btn-home-glow {
-            background: linear-gradient(135deg, #004a99, #00f2ff);
-            box-shadow: 0 0 10px rgba(0, 242, 255, 0.4);
-            transition: all 0.3s ease;
-        }
-        .btn-home-glow:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 18px rgba(0, 242, 255, 0.8);
-            background: linear-gradient(135deg, #00f2ff, #004a99);
+        /* ============ EDITOR CONTAINER ============ */
+        #editor-container{
+            background-color: transparent !important;
         }
 
         #pdf-wrapper {
             position: relative;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 12px 32px rgba(14,88,128,0.20), 0 2px 6px rgba(15,23,42,0.08), inset 0 1px 0 #fff;
             background: white;
             display: inline-block;
             overflow: hidden;
+            border-radius: 8px;
+            border: 1.5px solid rgba(255,255,255,0.95);
         }
 
-        #pdf-canvas {
-            display: block;
-        }
+        #pdf-canvas { display: block; }
 
-        /* Transparent Interactive Layer */
+        /* Transparent Interactive Text Layer */
         .textLayer {
             position: absolute !important;
             top: 0 !important;
@@ -98,7 +237,6 @@
             line-height: 1.0 !important;
             pointer-events: auto !important;
         }
-
         .textLayer span {
             position: absolute !important;
             cursor: pointer !important;
@@ -108,43 +246,149 @@
             pointer-events: auto !important;
             border-radius: 2px;
         }
-
         .textLayer span:hover {
-            background-color: rgba(59, 130, 246, 0.35) !important;
-            outline: 1px dashed #2563eb;
+            background-color: rgba(22, 118, 170, 0.30) !important;
+            outline: 1px dashed #1676aa;
+        }
+
+        /* ============ HISTORY ITEM ============ */
+        .history-item {
+            background: linear-gradient(150deg, rgba(255,255,255,0.92), rgba(236,246,252,0.72));
+            border: 1.5px solid rgba(143,163,184,0.5);
+            box-shadow: 0 4px 10px rgba(14,88,128,0.08), inset 0 1px 0 #fff;
+            border-radius: 12px;
+        }
+
+        /* ============ MODAL ============ */
+        .hnb-modal-card {
+            background: linear-gradient(150deg, rgba(255,255,255,0.96), rgba(255,255,255,0.78));
+            -webkit-backdrop-filter: blur(20px) saturate(170%);
+            backdrop-filter: blur(20px) saturate(170%);
+            border: 1.5px solid rgba(255,255,255,0.98);
+            box-shadow: 0 24px 60px rgba(14,88,128,0.30), 0 4px 14px rgba(15,23,42,0.10), inset 0 1px 0 #fff;
+        }
+        .hnb-modal-header {
+            background: linear-gradient(160deg, rgba(22,118,170,0.95), rgba(10,84,128,0.90));
+            color: #fff;
+            border-bottom: 1.5px solid rgba(255,255,255,0.30);
+        }
+        .hnb-input {
+            width: 100%; padding: 12px;
+            border-radius: 12px;
+            border: 1.5px solid rgba(143,163,184,0.5);
+            background: linear-gradient(150deg, rgba(255,255,255,0.95), rgba(255,255,255,0.72));
+            box-shadow: 0 3px 10px rgba(14,88,128,0.10), inset 0 1px 3px rgba(14,88,128,0.08);
+            font-size: 14px; font-weight: 600; color: #14213d;
+            transition: all 0.2s ease; outline: none;
+        }
+        .hnb-input:focus {
+            border-color: #1676aa;
+            box-shadow: 0 0 0 4px rgba(22,118,170,0.20), 0 3px 10px rgba(14,88,128,0.12);
+        }
+
+        /* Paper size select – light glass */
+        .hnb-select-wrap {
+            background: linear-gradient(150deg, rgba(255,255,255,0.94), rgba(236,246,252,0.74));
+            border: 1.5px solid rgba(143,163,184,0.5);
+            box-shadow: 0 4px 10px rgba(14,88,128,0.08), inset 0 1px 0 #fff;
+        }
+        .hnb-select-wrap select {
+            background: transparent;
+            border: 0; outline: 0;
+            color: #14213d;
+            font-weight: 700;
+        }
+        .hnb-select-wrap i { color: #1676aa; }
+
+        @media (max-width: 900px){
+            header.hnb-glass-header { height: auto !important; flex-wrap: wrap; padding: 10px 12px; }
+            aside.hnb-glass-aside { display: none; }
+        }
+        @media (max-width: 500px){
+            .hnb-logo{ padding: 7px 14px 7px 12px; }
+            .hnb-logo .hnb-part{ font-size: 1.2rem; }
+            .hnb-logo .fin-part{ font-size: .72rem; letter-spacing: 2px; }
+            .logo-pop{ padding: 12px; border-radius: 18px; }
+            .lp-main{ font-size: 15px; }
+            .lp-ico{ flex: 0 0 38px; width: 38px; height: 38px; font-size: 20px; }
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans h-screen flex flex-col overflow-hidden">
+<body class="h-screen flex flex-col overflow-hidden">
 
-    <!-- Top Navigation Bar -->
-    <header class="neon-header text-white h-20 flex items-center justify-between px-6 shadow-lg z-20">
-        <div class="header-content flex items-center gap-3">
-            <div class="bg-blue-600 p-2.5 rounded-xl shadow-md border border-cyan-400">
-                <i class="fa-solid fa-file-pen text-2xl text-white"></i>
+    <!-- ============ HEADER ============ -->
+    <header class="hnb-glass-header text-slate-800 h-20 flex items-center justify-between px-6 shadow-lg z-20">
+
+        <!-- Brand: HNB logo + title -->
+        <div class="flex items-center gap-3">
+
+            <!-- HNB Logo (with popup) -->
+            <div class="hnb-logo-wrap" id="logoWrap">
+                <div class="hnb-logo" id="logoBtn" title="Click for website &amp; hotline">
+                    <span class="hnb-part">HNB</span>
+                    <span class="fin-part">FINANCE</span>
+                </div>
+
+                <!-- Logo Popup -->
+                <div class="logo-pop" id="logoPop" role="dialog" aria-label="HNB Finance quick links">
+                    <div class="lp-head">HNB <span>FINANCE</span></div>
+
+                    <a class="lp-opt lp-web"
+                       href="https://www.hnbfinance.lk/"
+                       target="_blank" rel="noopener noreferrer">
+                        <div class="lp-ico">🌐</div>
+                        <div class="lp-txt">
+                            <span class="lp-lbl">Website</span>
+                            <span class="lp-main">www.hnbfinance.lk</span>
+                        </div>
+                        <span class="lp-go">→</span>
+                    </a>
+
+                    <a class="lp-opt lp-call" href="tel:+94114700700">
+                        <div class="lp-ico"><span>📞</span></div>
+                        <div class="lp-txt">
+                            <span class="lp-lbl">Hotline</span>
+                            <span class="lp-main">+94 11 4 700 700</span>
+                        </div>
+                        <span class="lp-go">→</span>
+                    </a>
+                </div>
             </div>
-            <div>
-                <h1 class="brand-title font-black text-xl text-white uppercase tracking-wider">
-                    HNB FINANCE <span class="text-cyan-400 font-extrabold">PDF EDITOR</span>
+
+            <!-- Divider -->
+            <div class="hidden md:block w-px h-10 bg-slate-300/60"></div>
+
+            <!-- Title -->
+            <div class="hidden md:block">
+                <h1 class="font-black text-base text-slate-900 uppercase tracking-wider">
+                    PDF EDITOR <span class="text-[#1676aa] font-extrabold">PRO</span>
                 </h1>
-                <p class="text-xs text-slate-300 font-medium tracking-wide">Exact Font Preserved & Perfect Alignment</p>
+                <p class="text-[11px] text-slate-500 font-medium tracking-wide">Exact Font Preserved & Perfect Alignment</p>
             </div>
         </div>
 
-        <div class="header-content flex items-center gap-3">
-            <a href="https://gmaphnbf.github.io/HNBFGMAP/" class="btn-home-glow text-white px-4 py-2 rounded-xl font-bold text-xs tracking-wider flex items-center gap-2 border border-white/20">
-                <i class="fa-solid fa-house text-white text-sm"></i> HOME
+        <!-- Right side buttons -->
+        <div class="flex items-center gap-2 flex-wrap justify-end">
+
+            <!-- HOME -->
+            <a href="https://gmaphnbf.github.io/HNBFGMAP/"
+               class="btn-glass px-4 py-2 rounded-xl font-bold text-xs tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-house text-white text-sm"></i>
+                <span>HOME</span>
             </a>
 
-            <!-- Undo Button -->
-            <button onclick="undoLastAction()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-2 rounded-xl font-bold text-xs tracking-wider transition-all flex items-center gap-1.5 shadow-md border border-amber-400/30">
-                <i class="fa-solid fa-rotate-left text-sm"></i> UNDO
+            <!-- UNDO -->
+            <button onclick="undoLastAction()"
+                    class="btn-glass px-3 py-2 rounded-xl font-bold text-xs tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-rotate-left text-sm"></i>
+                <span>UNDO</span>
             </button>
 
-            <div class="flex items-center gap-2 bg-slate-900/90 px-3 py-2 rounded-xl border border-slate-700">
-                <i class="fa-solid fa-print text-cyan-400 text-xs"></i>
-                <label for="paper-size" class="text-xs font-bold text-slate-300">Paper Size:</label>
-                <select id="paper-size" class="bg-slate-800 text-white text-xs border border-slate-600 rounded-lg px-2 py-1 outline-none cursor-pointer font-semibold">
+            <!-- Paper Size -->
+            <div class="hnb-select-wrap flex items-center gap-2 px-3 py-2 rounded-xl">
+                <i class="fa-solid fa-print text-xs"></i>
+                <label for="paper-size" class="text-xs font-bold text-slate-600">Paper:</label>
+                <select id="paper-size" class="text-xs cursor-pointer font-semibold">
                     <option value="a4">A4 (Portrait)</option>
                     <option value="letter">Letter</option>
                     <option value="legal">Legal</option>
@@ -152,27 +396,35 @@
                 </select>
             </div>
 
-            <label class="cursor-pointer bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl font-bold text-xs tracking-wider transition-all flex items-center gap-2 shadow-md border border-indigo-400/30">
-                <i class="fa-solid fa-file-arrow-up text-sm"></i> SELECT PDF
+            <!-- SELECT PDF -->
+            <label class="btn-glass cursor-pointer px-4 py-2 rounded-xl font-bold text-xs tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-file-arrow-up text-sm"></i>
+                <span>SELECT PDF</span>
                 <input type="file" id="pdf-file" accept="application/pdf" class="hidden">
             </label>
 
-            <button onclick="downloadPDF()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-bold text-xs tracking-wider transition-all flex items-center gap-2 shadow-md border border-emerald-400/30">
-                <i class="fa-solid fa-file-pdf text-sm"></i> SAVE PDF
+            <!-- SAVE PDF -->
+            <button onclick="downloadPDF()"
+                    class="btn-glass px-4 py-2 rounded-xl font-bold text-xs tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-file-pdf text-sm"></i>
+                <span>SAVE PDF</span>
             </button>
         </div>
     </header>
 
-    <!-- Main Workspace -->
+    <!-- ============ MAIN WORKSPACE ============ -->
     <div class="flex flex-1 overflow-hidden">
-        <aside class="w-80 bg-white border-r border-slate-200 flex flex-col shadow-sm z-10">
-            <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+
+        <!-- SIDEBAR – Edit History -->
+        <aside class="hnb-glass-aside w-80 flex flex-col z-10">
+            <div class="p-4 border-b border-slate-200/60 flex items-center justify-between">
                 <h2 class="font-bold text-slate-700 flex items-center gap-2 text-sm">
-                    <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Edit History
+                    <i class="fa-solid fa-clock-rotate-left text-[#1676aa]"></i> Edit History
                 </h2>
-                <span id="history-count" class="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full font-extrabold">0</span>
+                <span id="history-count"
+                      class="bg-[#1676aa] text-white text-xs px-2.5 py-0.5 rounded-full font-extrabold shadow-sm">0</span>
             </div>
-            
+
             <div id="history-list" class="flex-1 overflow-y-auto p-4 space-y-3">
                 <div id="empty-state" class="text-center py-10 text-slate-400">
                     <i class="fa-solid fa-i-cursor text-3xl mb-2 text-slate-300"></i>
@@ -180,14 +432,15 @@
                 </div>
             </div>
 
-            <div class="p-4 border-t border-slate-200 bg-slate-950 text-center">
-                <p class="text-xs font-bold text-slate-400 tracking-wider">
-                    DEVELOPED BY <span class="text-cyan-400 font-extrabold">9299</span>
+            <div class="p-4 border-t border-slate-200/60 text-center">
+                <p class="text-xs font-bold text-slate-500 tracking-wider">
+                    DEVELOPED BY <span class="text-[#1676aa] font-extrabold">9299</span>
                 </p>
             </div>
         </aside>
 
-        <main id="editor-container" class="flex-1 overflow-auto p-8 flex justify-center items-start bg-slate-200">
+        <!-- EDITOR AREA -->
+        <main id="editor-container" class="flex-1 overflow-auto p-8 flex justify-center items-start">
             <div id="pdf-wrapper">
                 <canvas id="pdf-canvas"></canvas>
                 <div id="text-layer" class="textLayer"></div>
@@ -195,44 +448,56 @@
         </main>
     </div>
 
-    <!-- Edit Modal -->
-    <div id="edit-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-slate-100">
-            <div class="bg-slate-900 text-white p-4 flex justify-between items-center border-b border-slate-800">
+    <!-- ============ EDIT MODAL ============ -->
+    <div id="edit-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="hnb-modal-card w-full max-w-md overflow-hidden rounded-2xl">
+
+            <div class="hnb-modal-header p-4 flex justify-between items-center">
                 <h3 class="font-bold text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-font text-cyan-400"></i> Edit Text Content
+                    <i class="fa-solid fa-font"></i> Edit Text Content
                 </h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <button onclick="closeModal()" class="text-white/80 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
             </div>
+
             <div class="p-5 space-y-4">
                 <div>
                     <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Original Text</label>
-                    <div id="modal-original-text" class="p-3 bg-slate-100 rounded-xl text-sm text-slate-600 italic break-words border border-slate-200 font-medium"></div>
+                    <div id="modal-original-text"
+                         class="p-3 rounded-xl text-sm text-slate-600 italic break-words font-medium bg-slate-100/80 border border-slate-200"></div>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">New Text</label>
-                    <input type="text" id="modal-input" class="w-full border-2 border-slate-300 rounded-xl p-3 text-sm font-semibold focus:outline-none focus:border-blue-600 transition-all">
+                    <input type="text" id="modal-input" class="hnb-input">
                 </div>
             </div>
-            <div class="bg-slate-50 p-4 border-t border-slate-100 flex justify-end gap-2">
-                <button onclick="closeModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all">Cancel</button>
-                <button id="modal-save-btn" class="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md">Apply Change</button>
+
+            <div class="p-4 border-t border-slate-200/60 flex justify-end gap-2">
+                <button onclick="closeModal()"
+                        class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200/70 transition-all">
+                    Cancel
+                </button>
+                <button id="modal-save-btn"
+                        class="btn-glass px-5 py-2 rounded-xl text-xs font-bold">
+                    Apply Change
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // CORRECTED FIREBASE CONFIGURATION
-    const firebaseConfig = {
-        apiKey: "AIzaSyDKkMovF3OWweyQSveA8KUKk63b-i5cqUg",
-        authDomain: "gmap-e4d9c.firebaseapp.com",
-        databaseURL: "https://gmap-e4d9c-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "gmap-e4d9c",
-        storageBucket: "gmap-e4d9c.firebasestorage.app",
-        messagingSenderId: "463028372030",
-        appId: "1:463028372030:web:76de01a61aba1cf4f4c76f",
-        measurementId: "G-PCH9WKCTLD"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDKkMovF3OWweyQSveA8KUKk63b-i5cqUg",
+            authDomain: "gmap-e4d9c.firebaseapp.com",
+            databaseURL: "https://gmap-e4d9c-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "gmap-e4d9c",
+            storageBucket: "gmap-e4d9c.firebasestorage.app",
+            messagingSenderId: "463028372030",
+            appId: "1:463028372030:web:76de01a61aba1cf4f4c76f",
+            measurementId: "G-PCH9WKCTLD"
+        };
+
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
         const fileInput = document.getElementById('pdf-file');
@@ -243,12 +508,43 @@
         const modal = document.getElementById('edit-modal');
         const modalInput = document.getElementById('modal-input');
         const modalOriginalText = document.getElementById('modal-original-text');
-        
+
         let currentTargetSpan = null;
         let historyCounter = 0;
         let historyStack = [];
         let baseCanvasSnapshot = null;
 
+        /* ==================== LOGO POPUP ==================== */
+        (function(){
+            const wrap = document.getElementById('logoWrap');
+            const btn  = document.getElementById('logoBtn');
+            const pop  = document.getElementById('logoPop');
+            if(!wrap || !btn || !pop) return;
+            let hideTimer = null;
+
+            function show(){ clearTimeout(hideTimer); pop.classList.add('show'); }
+            function hide(){ hideTimer = setTimeout(function(){ pop.classList.remove('show'); }, 220); }
+
+            wrap.addEventListener('mouseenter', show);
+            wrap.addEventListener('mouseleave', hide);
+
+            btn.addEventListener('click', function(e){
+                e.stopPropagation();
+                pop.classList.toggle('show');
+            });
+
+            pop.addEventListener('click', function(e){ e.stopPropagation(); });
+
+            document.addEventListener('click', function(e){
+                if (!wrap.contains(e.target)) pop.classList.remove('show');
+            });
+
+            document.addEventListener('keydown', function(e){
+                if (e.key === 'Escape') pop.classList.remove('show');
+            });
+        })();
+
+        /* ==================== PDF LOAD ==================== */
         fileInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -257,7 +553,7 @@
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
             const page = await pdf.getPage(1);
 
-            const scale = 2.0; 
+            const scale = 2.0;
             const viewport = page.getViewport({ scale: scale });
 
             canvas.height = viewport.height;
@@ -271,11 +567,11 @@
             textLayerDiv.innerHTML = '';
 
             await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-            
+
             baseCanvasSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
             const textContent = await page.getTextContent();
-            
+
             await pdfjsLib.renderTextLayer({
                 textContent: textContent,
                 container: textLayerDiv,
@@ -293,6 +589,7 @@
                 </div>`;
         });
 
+        /* ==================== TEXT CLICK ==================== */
         textLayerDiv.addEventListener('click', function(e) {
             if (e.target && e.target.tagName === 'SPAN') {
                 currentTargetSpan = e.target;
@@ -305,31 +602,25 @@
 
         document.getElementById('modal-save-btn').addEventListener('click', function() {
             if (!currentTargetSpan) return;
-
             const oldText = modalOriginalText.innerText;
             const newText = modalInput.value;
-
             if (newText.trim() !== "") {
                 applyTextChange(currentTargetSpan, oldText, newText);
             }
-
             closeModal();
         });
 
         function applyTextChange(span, oldText, newText) {
-            // Span Exact Position
             const spanLeft = span.offsetLeft;
             const spanTop = span.offsetTop;
             const spanWidth = span.offsetWidth || (span.innerText.length * 8);
             const spanHeight = span.offsetHeight || 16;
 
-            // Original Style Capture
             const computedStyle = window.getComputedStyle(span);
             const fontSize = computedStyle.fontSize;
             const fontFamily = computedStyle.fontFamily;
             const color = computedStyle.color && computedStyle.color !== 'rgba(0, 0, 0, 0)' && computedStyle.color !== 'transparent' ? computedStyle.color : '#000000';
 
-            // HTML Element InnerText Update
             span.innerText = newText;
 
             const editRecord = {
@@ -346,8 +637,6 @@
             };
 
             historyStack.push(editRecord);
-
-            // Directly redraw text on Canvas
             redrawCanvasWithEdits();
             addToHistory(editRecord);
         }
@@ -360,7 +649,6 @@
         function addToHistory(record) {
             const historyList = document.getElementById('history-list');
             const emptyState = document.getElementById('empty-state');
-            
             if (emptyState) emptyState.remove();
 
             historyCounter++;
@@ -369,7 +657,7 @@
             const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             const historyItem = document.createElement('div');
-            historyItem.className = 'bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs space-y-1 shadow-xs flex justify-between items-center';
+            historyItem.className = 'history-item p-3 text-xs flex justify-between items-center';
             historyItem.innerHTML = `
                 <div class="space-y-0.5 max-w-[170px]">
                     <div class="flex justify-between items-center text-slate-400 font-bold">
@@ -379,11 +667,12 @@
                     <div class="line-through text-rose-500 truncate font-medium">${record.oldText}</div>
                     <div class="text-emerald-600 font-bold truncate">${record.newText}</div>
                 </div>
-                <button onclick="undoSpecificAction(${historyStack.length - 1})" class="text-amber-600 hover:bg-amber-100 p-1.5 rounded-lg font-bold transition-all" title="Undo this edit">
+                <button onclick="undoSpecificAction(${historyStack.length - 1})"
+                        class="text-amber-600 hover:bg-amber-100 p-1.5 rounded-lg font-bold transition-all"
+                        title="Undo this edit">
                     <i class="fa-solid fa-rotate-left text-sm"></i>
                 </button>
             `;
-
             historyList.prepend(historyItem);
         }
 
@@ -394,29 +683,20 @@
 
         function undoSpecificAction(index) {
             if (index < 0 || index >= historyStack.length) return;
-
             const record = historyStack[index];
             record.span.innerText = record.oldText;
-
             historyStack.splice(index, 1);
-
             redrawCanvasWithEdits();
             refreshHistoryUI();
         }
 
         function redrawCanvasWithEdits() {
             if (!baseCanvasSnapshot) return;
-
-            // 1. Original PDF Canvas එක Restore කිරීම
             ctx.putImageData(baseCanvasSnapshot, 0, 0);
 
-            // 2. වෙනස් කළ සියලුම Text Canvas එක මත Direct Render කිරීම
             historyStack.forEach(rec => {
-                // Erase old text on Canvas
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(rec.x - 2, rec.y - 2, rec.width + 12, rec.height + 6);
-
-                // Draw new text with exact Font, Size & Color directly on Canvas
                 ctx.font = `${rec.fontSize} ${rec.fontFamily}`;
                 ctx.fillStyle = rec.color;
                 ctx.textBaseline = 'top';
@@ -441,13 +721,13 @@
 
             const currentStack = [...historyStack];
             historyStack = [];
-
             currentStack.forEach(rec => {
                 historyStack.push(rec);
                 addToHistory(rec);
             });
         }
 
+        /* ==================== SAVE PDF ==================== */
         async function downloadPDF() {
             if (!canvas.width) {
                 alert("කරුණාකර පළමුව PDF එකක් Upload කරන්න!");
@@ -456,7 +736,7 @@
 
             const { jsPDF } = window.jspdf;
             const selectedPaperSize = document.getElementById('paper-size').value;
-            
+
             const pdf = new jsPDF({
                 orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
                 unit: 'px',
@@ -466,9 +746,7 @@
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
 
-            // Canvas Image එක direct ලෙස PDF එකට Save වීම සිදු වේ
             const imgData = canvas.toDataURL('image/jpeg', 1.0);
-            
             pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
             pdf.save('edited_document.pdf');
         }
